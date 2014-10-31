@@ -22,4 +22,5 @@ class Engine {
 		// void process_audio (jack_nframes_t nframes);
 		// int process (jack_nframes_t nframes, void *arg);
 		int sample_rate_change ();
+		void setPlayMode(bool);
 };

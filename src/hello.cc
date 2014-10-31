@@ -1,30 +1,22 @@
 #include <nan.h>
 #include <iostream>
 #include "engine.h"
-// #include <fstream>
+
+//nw-gyp rebuild --target=0.11.0-rc1
 
 using namespace v8;
 using namespace std;
 
-NAN_METHOD(Method) {
+Engine engine;
+
+NAN_METHOD(SayHi) {
 	NanScope();
-	// ifstream myReadFile;
-	// myReadFile.open("foo.txt");
-	// char output[100];
-	// if (myReadFile.is_open()) {
-	// 	while (!myReadFile.eof()) {
-	// 		myReadFile >> output;
-	// 		cout<<output;
-	// 	}
-	// }
-	// myReadFile.close();
-	// NanReturnValue(NanNew(output));
+	engine.setPlayMode(args[0]->BooleanValue());
 	NanReturnValue(NanNew("yooo"));
 }
 
 void Init(Handle<Object> exports) {
-	exports->Set(NanNew("hello"), NanNew<FunctionTemplate>(Method)->GetFunction());
-	Engine engine;
+	exports->Set(NanNew("hello"), NanNew<FunctionTemplate>(SayHi)->GetFunction());
 	cout << "sup boss\n";
 }
 

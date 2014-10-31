@@ -9,90 +9,18 @@
 <head>
   <meta charset="utf-8">
   <title>Jeremy Synth</title>
-  <script src="js/angular.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/default.css">
+  <!--<script src="js/angular.min.js"></script>-->
   <script>
 var addon = require('bindings')('hello');
-console.log(addon.hello());
-
-// var fs = require("fs");
-// var fileName = "foo.txt";
- 
-// fs.exists(fileName, function(exists) {
-//   if (exists) {
-//     fs.stat(fileName, function(error, stats) {
-//       fs.open(fileName, "r", function(error, fd) {
-//         var buffer = new Buffer(stats.size);
- 
-//         fs.read(fd, buffer, 0, buffer.length, null, function(error, bytesRead, buffer) {
-//           var data = buffer.toString("utf8", 0, buffer.length);
- 
-//           console.log(data);
-//           fs.close(fd);
-//         });
-//       });
-//     });
-//   }
-// });
-
+// console.log(addon.hello());
   </script>
-  <style>
-    html, body {
-      /*background-color:rgb(40,40,40);*/
-      background: url(css/d4.png);
-      /*background: url(blue.jpg);*/
-      color:#c2c8cd;
-      -webkit-font-smoothing: antialiased;
-      /*font: normal 14px/1.5em "Lucida Grande", "Lucida Sans Unicode", "Verdana", sans-serif;*/
-      text-shadow: rgba(0,0,0,.6) 0 1px 1px;
-
-      /*-webkit-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;*/
-      -moz-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;
-      margin:0;
-      padding:10px 0 0 0;
-    }
-    .widget {
-      /*color: rgb(40,40,40);*/
-      /*background-color:rgb(100,100,100);*/
-      background: rgba(160,160,160,.2);
-      width:200px;
-      margin:0 auto;
-      padding: 14px;
-      border-radius: 3px;
-      border:1px solid rgba(0,0,0,.4);
-      -webkit-box-shadow: rgba(255,255,255,.2) 0 1px 0, rgba(255,255,255,.1) 0 0 5px, rgba(0,0,0,.1) 0 1px 3px inset;
-    }
-    #stepsequencer {
-      margin-top:30px;
-      margin-bottom: 30px;
-    }
-    #stepsequencer #buttons {
-      margin-bottom: 15px;
-    }
-    .whitekey {
-      fill:white;
-      stroke:rgb(150,150,150);
-      stroke-width:1px;
-    }
-    .whitekey:hover {
-      fill:rgb(235,235,235);
-    }
-    .blackkey {
-      fill:rgb(60,60,60);
-    }
-    .blackkey:hover {
-      fill:rgb(0,0,0);
-    }
-    #pianoRoll {
-      width:500px;
-      height:198px;
-      padding:2px;
-    }
-    #pianoRollCanvas {
-      background-color: rgb(50, 50, 55);
-    }
-  </style>
 </head>
 <body>
+  <div id="topPanel" class="widget">
+    <button onclick="start()">►</button>
+    <button onclick="stop()">█▌</button>
+  </div>
   <div id="synth" class="widget">
     <select onchange="changeOscType(this)">
       <option value="sine" selected>Sine</option>
@@ -338,29 +266,31 @@ function nextBar(time) {
   //  nextBar(context.currentTime);
   // }, mpb);
 
-  if(curNote%4 in notes) {
-    for(var key in notes[curNote%4]) {
-      noteDown[key] = context.createOscillator();
-      // noteDown[key].connect(context.destination);
-      noteDown[key].connect(filter);
-      noteDown[key].frequency.value = key * Math.pow(2,transpose);
-      noteDown[key].type = oscType;
-      noteDown[key].start(time);
-      noteDown[key].stop(time + notes[curNote%4][key]);
-    }
-  }
-  curNote++;
-  timer = setTimeout(function() {
-    nextBar(context.currentTime);
-  }, mpb);
+  // if(curNote%4 in notes) {
+  //   for(var key in notes[curNote%4]) {
+  //     noteDown[key] = context.createOscillator();
+  //     // noteDown[key].connect(context.destination);
+  //     noteDown[key].connect(filter);
+  //     noteDown[key].frequency.value = key * Math.pow(2,transpose);
+  //     noteDown[key].type = oscType;
+  //     noteDown[key].start(time);
+  //     noteDown[key].stop(time + notes[curNote%4][key]);
+  //   }
+  // }
+  // curNote++;
+  // timer = setTimeout(function() {
+  //   nextBar(context.currentTime);
+  // }, mpb);
 }
 
 function start() {
-  nextBar(0);
+  addon.hello(true);
+  // nextBar(0);
 }
 function stop() {
-  clearTimeout(timer);
-  curNote = 0;
+  addon.hello(false);
+  // clearTimeout(timer);
+  // curNote = 0;
 }
 ///////////////////////////////// Piano Roll ///////////////////////////////////
 

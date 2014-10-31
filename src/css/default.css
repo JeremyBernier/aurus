@@ -1,14 +1,57 @@
 html, body {
-	/*background-color:rgb(40,40,40);*/
-	background: url(d4.png);
-	/*background: url(blue.jpg);*/
-	color:#c2c8cd;
-	-webkit-font-smoothing: antialiased;
-	/*font: normal 14px/1.5em "Lucida Grande", "Lucida Sans Unicode", "Verdana", sans-serif;*/
-	text-shadow: rgba(0,0,0,.6) 0 1px 1px;
+  /*background-color:rgb(40,40,40);*/
+  background: url(d4.png);
+  /*background: url(blue.jpg);*/
+  color:#c2c8cd;
+  -webkit-font-smoothing: antialiased;
+  /*font: normal 14px/1.5em "Lucida Grande", "Lucida Sans Unicode", "Verdana", sans-serif;*/
+  text-shadow: rgba(0,0,0,.6) 0 1px 1px;
 
-	/*-webkit-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;*/
-	-moz-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;
-	margin:0;
-	padding:10px 0 0 0;
+  /*-webkit-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;*/
+  -moz-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;
+  margin:0;
+  padding:10px 0 0 0;
+}
+.widget {
+  /*color: rgb(40,40,40);*/
+  /*background-color:rgb(100,100,100);*/
+  background: rgba(160,160,160,.2);
+  width:200px;
+  margin:0 auto;
+  padding: 14px;
+  border-radius: 3px;
+  border:1px solid rgba(0,0,0,.4);
+  -webkit-box-shadow: rgba(255,255,255,.2) 0 1px 0, rgba(255,255,255,.1) 0 0 5px, rgba(0,0,0,.1) 0 1px 3px inset;
+}
+#topPanel {
+  margin-bottom: 30px;
+}
+#stepsequencer {
+  margin-top:30px;
+  margin-bottom: 30px;
+}
+#stepsequencer #buttons {
+  margin-bottom: 15px;
+}
+.whitekey {
+  fill:white;
+  stroke:rgb(150,150,150);
+  stroke-width:1px;
+}
+.whitekey:hover {
+  fill:rgb(235,235,235);
+}
+.blackkey {
+  fill:rgb(60,60,60);
+}
+.blackkey:hover {
+  fill:rgb(0,0,0);
+}
+#pianoRoll {
+  width:500px;
+  height:198px;
+  padding:2px;
+}
+#pianoRollCanvas {
+  background-color: rgb(50, 50, 55);
 }
