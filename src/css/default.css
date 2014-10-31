@@ -1,0 +1,14 @@
+html, body {
+	/*background-color:rgb(40,40,40);*/
+	background: url(d4.png);
+	/*background: url(blue.jpg);*/
+	color:#c2c8cd;
+	-webkit-font-smoothing: antialiased;
+	/*font: normal 14px/1.5em "Lucida Grande", "Lucida Sans Unicode", "Verdana", sans-serif;*/
+	text-shadow: rgba(0,0,0,.6) 0 1px 1px;
+
+	/*-webkit-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;*/
+	-moz-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;
+	margin:0;
+	padding:10px 0 0 0;
+}

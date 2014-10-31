@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  TO DO:
+  Oscilloscope
+  PWM
+  Good Song: awf h uk   triangle
+-->
+<head>
+  <meta charset="utf-8">
+  <title>Jeremy Synth</title>
+  <script src="js/angular.min.js"></script>
+  <script>
+var addon = require('bindings')('hello');
+console.log(addon.hello());
+
+// var fs = require("fs");
+// var fileName = "foo.txt";
+ 
+// fs.exists(fileName, function(exists) {
+//   if (exists) {
+//     fs.stat(fileName, function(error, stats) {
+//       fs.open(fileName, "r", function(error, fd) {
+//         var buffer = new Buffer(stats.size);
+ 
+//         fs.read(fd, buffer, 0, buffer.length, null, function(error, bytesRead, buffer) {
+//           var data = buffer.toString("utf8", 0, buffer.length);
+ 
+//           console.log(data);
+//           fs.close(fd);
+//         });
+//       });
+//     });
+//   }
+// });
+
+  </script>
+  <style>
+    html, body {
+      /*background-color:rgb(40,40,40);*/
+      background: url(css/d4.png);
+      /*background: url(blue.jpg);*/
+      color:#c2c8cd;
+      -webkit-font-smoothing: antialiased;
+      /*font: normal 14px/1.5em "Lucida Grande", "Lucida Sans Unicode", "Verdana", sans-serif;*/
+      text-shadow: rgba(0,0,0,.6) 0 1px 1px;
+
+      /*-webkit-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;*/
+      -moz-box-shadow: rgba(0,0,0,.5) 0 0 15px inset;
+      margin:0;
+      padding:10px 0 0 0;
+    }
+    .widget {
+      /*color: rgb(40,40,40);*/
+      /*background-color:rgb(100,100,100);*/
+      background: rgba(160,160,160,.2);
+      width:200px;
+      margin:0 auto;
+      padding: 14px;
+      border-radius: 3px;
+      border:1px solid rgba(0,0,0,.4);
+      -webkit-box-shadow: rgba(255,255,255,.2) 0 1px 0, rgba(255,255,255,.1) 0 0 5px, rgba(0,0,0,.1) 0 1px 3px inset;
+    }
+    #stepsequencer {
+      margin-top:30px;
+      margin-bottom: 30px;
+    }
+    #stepsequencer #buttons {
+      margin-bottom: 15px;
+    }
+    .whitekey {
+      fill:white;
+      stroke:rgb(150,150,150);
+      stroke-width:1px;
+    }
+    .whitekey:hover {
+      fill:rgb(235,235,235);
+    }
+    .blackkey {
+      fill:rgb(60,60,60);
+    }
+    .blackkey:hover {
+      fill:rgb(0,0,0);
+    }
+    #pianoRoll {
+      width:500px;
+      height:198px;
+      padding:2px;
+    }
+    #pianoRollCanvas {
+      background-color: rgb(50, 50, 55);
+    }
+  </style>
+</head>
+<body>
+  <div id="synth" class="widget">
+    <select onchange="changeOscType(this)">
+      <option value="sine" selected>Sine</option>
+      <option value="triangle">Triangle</option>
+      <option value="square">Square</option>
+      <option value="sawtooth">Saw</option>
+    </select>
+    <select onchange="changeTranspose(this)">
+      <option value="-5">-5</option>
+      <option value="-4">-4</option>
+      <option value="-3">-3</option>
+      <option value="-2">-2</option>
+      <option value="-1">-1</option>
+      <option value="0" selected>0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+    <!-- <br /><button ng-click="toggleSound()">Toggle</button> -->
+    <br />
+    <input type="range" min="0" max="1" value="1" step="0.01" oninput="changeFrequency(this);" />Filter<br />
+    <input type="range" min="0" max="100" value="100" oninput="changeVolume(this);" />Volume<br /><br />
+
+    <svg id="keyboard" height="80"></svg>
+  </div>
+  <div id="stepsequencer" class="widget">
+    <div id="buttons">
+      <button onclick="start()">►</button>
+      <button onclick="stop()">█▌</button>
+      <button>▌▌</button>
+    </div>
+    <div id="stepseq">
+      <div>C
+        <input class="pRoll" type="checkbox" id="C5-0" />
+        <input class="pRoll" type="checkbox" id="C5-1" />
+        <input class="pRoll" type="checkbox" id="C5-2" />
+        <input class="pRoll" type="checkbox" id="C5-3" />
+      </div>
+      <div>B
+        <input class="pRoll" type="checkbox" id="B4-0" />
+        <input class="pRoll" type="checkbox" id="B4-1" />
+        <input class="pRoll" type="checkbox" id="B4-2" />
+        <input class="pRoll" type="checkbox" id="B4-3" />
+      </div>
+      <div>A
+        <input class="pRoll" type="checkbox" id="A4-0" />
+        <input class="pRoll" type="checkbox" id="A4-1" />
+        <input class="pRoll" type="checkbox" id="A4-2" />
+        <input class="pRoll" type="checkbox" id="A4-3" />
+      </div>
+      <div>G
+        <input class="pRoll" type="checkbox" id="G4-0" />
+        <input class="pRoll" type="checkbox" id="G4-1" />
+        <input class="pRoll" type="checkbox" id="G4-2" />
+        <input class="pRoll" type="checkbox" id="G4-3" />
+      </div>
+      <div>F
+        <input class="pRoll" type="checkbox" id="F4-0" />
+        <input class="pRoll" type="checkbox" id="F4-1" />
+        <input class="pRoll" type="checkbox" id="F4-2" />
+        <input class="pRoll" type="checkbox" id="F4-3" />
+      </div>
+      <div>E
+        <input class="pRoll" type="checkbox" id="E4-0" />
+        <input class="pRoll" type="checkbox" id="E4-1" />
+        <input class="pRoll" type="checkbox" id="E4-2" />
+        <input class="pRoll" type="checkbox" id="E4-3" />
+      </div>
+      <div>D
+        <input class="pRoll" type="checkbox" id="D4-0" />
+        <input class="pRoll" type="checkbox" id="D4-1" />
+        <input class="pRoll" type="checkbox" id="D4-2" />
+        <input class="pRoll" type="checkbox" id="D4-3" />
+      </div>
+      <div>C
+        <input class="pRoll" type="checkbox" id="C4-0" />
+        <input class="pRoll" type="checkbox" id="C4-1" />
+        <input class="pRoll" type="checkbox" id="C4-2" />
+        <input class="pRoll" type="checkbox" id="C4-3" />
+      </div>
+    </div>
+  </div>
+  <div id="pianoRoll" class="widget">
+    <canvas id="pianoRollCanvas" width="500" height="200"></canvas>
+  </div>
+<script>
+window.requestAnimFrame = (function(){
+    return  window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function( callback ){
+        window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
+function drawKeyBoard() {
+  var whiteKeyWidth = 20;
+  var whiteKeyHeight = 80;
+  var blackKeyWidth = 14;
+  var blackKeyHeight = 50;
+  var svg = document.getElementById('keyboard');
+
+  for(var i=0; i<10; i++) {
+    var key = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+    key.setAttribute('class', 'whitekey');
+    key.setAttribute('x', i*whiteKeyWidth);
+    key.setAttribute('y', 0);
+    key.setAttribute('width', whiteKeyWidth);
+    key.setAttribute('height', whiteKeyHeight);
+    svg.appendChild(key);
+
+    var mod = i%7;
+    if(mod == 1 || mod == 2 || mod == 4 || mod == 5 || mod == 6) {
+      var key = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+      key.setAttribute('class', 'blackkey');
+      key.setAttribute('x', i*whiteKeyWidth-blackKeyWidth/2);
+      key.setAttribute('y', 0);
+      key.setAttribute('width', blackKeyWidth);
+      key.setAttribute('height', blackKeyHeight);
+      svg.appendChild(key);
+    }
+  }
+}
+drawKeyBoard();
+
+var gainNode;
+var filter;
+var context;
+var oscillator;
+var oscType = 'sine';
+var transpose = 0;
+
+function init() {
+  try {
+    window.AudioContext = window.AudioContext||window.webkitAudioContext;
+    context = new AudioContext();
+  }
+  catch(e) {
+    alert('Web Audio API is not supported in this browser :-(');
+  }
+  // gainNode = context.createGain();
+  // gainNode.connect(context.destination);
+  // gainNode.gain.value = 1;
+  // filter = context.createBiquadFilter();
+  // filter.connect(gainNode); // Connect sound to output
+  // filter.type = 0;
+  // filter.frequency.value = context.sampleRate / 2;
+}
+init();
+
+function changeTranspose(elem) {
+  // transpose = elem.value;
+}
+
+function changeOscType(elem) {
+  // oscType = elem.value;
+}
+
+function changeVolume(elem) {
+  var fraction = parseInt(elem.value) / parseInt(elem.max);
+  gainNode.gain.value = fraction;
+}
+function changeFrequency(element) {
+  // Clamp the frequency between the minimum value (40 Hz) and half of the
+  // sampling rate.
+  // var minValue = 40;
+  // var maxValue = context.sampleRate / 2;
+  // // Logarithm (base 2) to compute how many octaves fall in the range.
+  // var numberOfOctaves = Math.log(maxValue / minValue) / Math.LN2;
+  // // Compute a multiplier from 0 to 1 based on an exponential scale.
+  // var multiplier = Math.pow(2, numberOfOctaves * (element.value - 1.0));
+  // // Get back to the frequency value between min and max.
+  // filter.frequency.value = maxValue * multiplier;
+};
+
+var keyDown = {};
+var keyCodeToFreq = {65:261.63, 83: 293.66, 68: 329.63, 70: 349.23, 71: 392.00,
+  72: 440.00,74: 493.88, 87: 277.18, 69: 311.13, 84: 369.99,
+  89: 415.30, 85: 466.16, 75: 523.25};
+// var keyCodeToFreq = {C:261.63, C#: 277.18, D: 293.66, D#: 311.13, E: 329.63, F: 349.23, F#: 369.99, 
+//  G: 392.00, G#: 415.30, A: 440.00, A#: 466.16, B: 493.88, C2: 523.25};
+
+var keyToFreq = {
+  C4: 261.63,
+  D4: 293.66,
+  E4: 329.63,
+  F4: 349.23,
+  G4: 392.00,
+  A4: 440.00,
+  B4: 493.88,
+  C5: 523.25
+};
+
+window.onkeydown = function(evt) {
+}
+window.onkeyup = function(evt) {
+}
+///////////////////////////////// Step Sequencer ///////////////////////////////////
+
+var timer = 0;
+var bpm = 128;
+var mpb = 1/bpm*60*1000;
+var curNote = 0;
+var noteDown = {};
+
+// var notes = {0:{440.:.1, 523.25:.1}, 1:{349.23:.3}, 3:{392.:.1}};
+var notes = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+  var elems = document.getElementsByClassName('pRoll');
+  for(var i = elems.length-1; i >= 0; i--) {
+    elems[i].addEventListener('change', pianoRollChange, false);
+  }
+});
+
+function pianoRollChange(evt) {
+  var src = evt['srcElement'].id.split('-');
+  if(!(src[1] in notes)) {
+    notes[src[1]] = {};
+  }
+  var freq = keyToFreq[src[0]];
+  if(!(freq in notes[src[1]])) {
+    notes[src[1]][freq] = .1;
+  }
+  else {
+    delete notes[src[1]][freq];
+  }
+}
+
+function nextBar(time) {
+  //Metronome
+  // var osc = context.createOscillator();
+  // osc.connect(context.destination);
+  // osc.frequency.value = 440.0;
+  // osc.type = 'sine';
+  // osc.start(time);
+  // osc.stop(time + 0.1);
+  // timer = setTimeout(function() {
+  //  nextBar(context.currentTime);
+  // }, mpb);
+
+  if(curNote%4 in notes) {
+    for(var key in notes[curNote%4]) {
+      noteDown[key] = context.createOscillator();
+      // noteDown[key].connect(context.destination);
+      noteDown[key].connect(filter);
+      noteDown[key].frequency.value = key * Math.pow(2,transpose);
+      noteDown[key].type = oscType;
+      noteDown[key].start(time);
+      noteDown[key].stop(time + notes[curNote%4][key]);
+    }
+  }
+  curNote++;
+  timer = setTimeout(function() {
+    nextBar(context.currentTime);
+  }, mpb);
+}
+
+function start() {
+  nextBar(0);
+}
+function stop() {
+  clearTimeout(timer);
+  curNote = 0;
+}
+///////////////////////////////// Piano Roll ///////////////////////////////////
+
+
+var canvas = document.getElementById("pianoRollCanvas");
+var ctx = canvas.getContext("2d");
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+// ctx.fillStyle = "#000000";
+// ctx.fillRect(0, 0, canvas.width, canvas.height);
+var keyHeight = 12,
+  keyWidth = 50;
+var squareWidth = keyHeight;
+
+var mousedown = false;
+var noteStartPos = {};
+var noteEndPosX;
+var coords;
+
+var pianoNotes = {0: {}, 1:{}};
+
+canvas.addEventListener('mousedown', mousedownHandler, false);
+canvas.addEventListener('mousemove', mousemoveHandler, false);
+canvas.addEventListener('mouseup', mouseupHandler, false);
+
+function mousedownHandler(evt) {
+  coords = getMousePos(canvas, evt);
+  if(coords.x > keyWidth) {
+    var coords2 = {x: coords.x - keyWidth, y: coords.y};
+    noteStartPos['x'] = Math.floor(coords2.x/squareWidth);
+    noteEndPosX = noteStartPos['x'];
+    noteStartPos['y'] = Math.floor(coords2.y/keyHeight);
+    ctx.fillStyle = 'rgb(137, 187, 132)';
+    ctx.fillRect(keyWidth+noteStartPos.x*squareWidth,noteStartPos.y*keyHeight,squareWidth,keyHeight);
+  }
+  mousedown = true;
+}
+function mousemoveHandler(evt) {
+  if(mousedown) {
+    coords = getMousePos(canvas, evt);
+    var coords2 = {x: coords.x - keyWidth, y: coords.y};
+    var curNoteEndPosX = Math.floor(coords2.x/squareWidth);
+    if(noteEndPosX != curNoteEndPosX) {
+      noteEndPosX = curNoteEndPosX;
+      ctx.fillStyle = 'rgb(137, 187, 132)';
+      ctx.fillRect(keyWidth+noteStartPos.x*squareWidth,noteStartPos.y*keyHeight,(curNoteEndPosX-noteStartPos.x+1)*squareWidth,keyHeight);
+      // if(noteEnd)
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+}
+function mouseupHandler(evt) {
+  mousedown = false;
+}
+function getMousePos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+
+for(var i=0; i<17; i++) {
+  ctx.beginPath();
+  ctx.rect(0, i*keyHeight, keyWidth, keyHeight);
+
+  var mod = i%12;
+  if(mod == 1 || mod == 3 || mod == 6 || mod == 8 || mod == 10) {
+    ctx.fillStyle = 'rgb(60,60,60)';
+  }
+  else {
+    ctx.fillStyle = "#FFFFFF";
+  }
+  ctx.fill();
+  // ctx.strokeStyle = '#969696';
+  ctx.lineWidth = .5;
+  ctx.strokeStyle = 'rgb(100,100,100)';
+  ctx.stroke();
+
+  //Gridlines
+  ctx.rect(keyWidth, i*keyHeight, canvas.width-keyWidth, keyHeight);
+  ctx.fillStyle = "rgba(0,0,0,0)";
+  ctx.fill();
+  ctx.lineWidth = .5;
+  ctx.strokeStyle = 'rgb(40,40,40)';
+  ctx.stroke();
+  if(mod == 0) {
+    ctx.beginPath();
+    ctx.moveTo(keyWidth, i*keyHeight);
+    ctx.lineTo(canvas.width, i*keyHeight);
+    ctx.strokeStyle = 'rgb(10,10,10)';
+    ctx.stroke();
+  }
+}
+//vertical lines
+for (var i=0; i<40; i++) {
+  ctx.beginPath();
+  ctx.moveTo(keyWidth+squareWidth*i, 0);
+  ctx.lineTo(keyWidth+squareWidth*i, canvas.height);
+  if(i%4 == 0) {
+    if(i%16 == 0) {
+      ctx.strokeStyle = 'rgb(5,5,5)';
+      ctx.lineWidth = .9;
+    }
+    else {
+      ctx.strokeStyle = 'rgb(10,10,10)';
+      ctx.lineWidth = .5;
+    }
+  }
+  else {
+    ctx.strokeStyle = 'rgb(40,40,40)';
+    ctx.lineWidth = .5;
+  }
+  ctx.stroke();
+}
+/** color density = velocity **/
+
+/** holding down click let's you alter size of piano click before dropping **/
+
+</script>
+
+</body>
+</html>
