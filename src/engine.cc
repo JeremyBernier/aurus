@@ -1,5 +1,43 @@
 #include "engine.h"
 
+Engine::Engine() {
+	offset = 0;
+	// transport_aware = 0;
+	bpm = 140;
+	playing = true;
+	jack_status_t status;
+
+	/* Initial Jack setup, get sample rate */
+	if ((client = jack_client_open ("Aurus", JackNoStartServer, &status)) == 0) {
+		fprintf (stderr, "jack server not running?\n");
+    		// return 1;
+	}
+	jack_set_process_callback (client, staticProcessCallback, this);
+	const char *portName = "metronome";
+	output_port = jack_port_register (client, portName, JACK_DEFAULT_AUDIO_TYPE, 
+		JackPortIsOutput | JackPortIsTerminal, 0);
+
+	sr = jack_get_sample_rate (client);
+
+	// const char *portNames[] = { "out_1", "out_2" };
+	const char **outPorts = jack_get_ports(
+                client,
+                NULL,
+                NULL,
+                JackPortIsPhysical | JackPortIsInput);
+	if(outPorts != NULL) {
+		cout << outPorts[0] << endl;
+		cout << outPorts[1] << endl;
+		cout << jack_connect(client, portName, outPorts[0]);
+		cout << jack_connect(client, portName, outPorts[1]);
+		cout << "Should work" << endl;
+	}
+	else {
+        cerr << "Warning, No outputs to autoconnect to" << endl;
+	}
+	buildWave();
+}
+
 void Engine::process_silence (jack_nframes_t nframes) {
 	jack_default_audio_sample_t *buffer = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
 	memset (buffer, 0, sizeof (jack_default_audio_sample_t) * nframes);
@@ -43,44 +81,6 @@ int Engine::processCallback(jack_nframes_t _nframes, void * _udata) {
 	}
 	// return 0;
 	return 0;
-}
-
-Engine::Engine() {
-	offset = 0;
-	// transport_aware = 0;
-	bpm = 140;
-	playing = true;
-	jack_status_t status;
-
-	/* Initial Jack setup, get sample rate */
-	if ((client = jack_client_open ("Aurus", JackNoStartServer, &status)) == 0) {
-		fprintf (stderr, "jack server not running?\n");
-    		// return 1;
-	}
-	jack_set_process_callback (client, staticProcessCallback, this);
-	const char *portName = "metronome";
-	output_port = jack_port_register (client, portName, JACK_DEFAULT_AUDIO_TYPE, 
-		JackPortIsOutput | JackPortIsTerminal, 0);
-
-	sr = jack_get_sample_rate (client);
-
-	// const char *portNames[] = { "out_1", "out_2" };
-	const char **outPorts = jack_get_ports(
-                client,
-                NULL,
-                NULL,
-                JackPortIsPhysical | JackPortIsInput);
-	if(outPorts != NULL) {
-		cout << outPorts[0] << endl;
-		cout << outPorts[1] << endl;
-		cout << jack_connect(client, portName, outPorts[0]);
-		cout << jack_connect(client, portName, outPorts[1]);
-		cout << "Should work" << endl;
-	}
-	else {
-        cerr << "Warning, No outputs to autoconnect to" << endl;
-	}
-	buildWave();
 }
 
 void Engine::setPlayMode(bool mode) {
