@@ -316,7 +316,7 @@ ifeq ($(strip $(foreach prefix,$(NO_LOAD),\
 endif
 
 quiet_cmd_regen_makefile = ACTION Regenerating $@
-cmd_regen_makefile = cd $(srcdir); /usr/local/lib/node_modules/nw-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/home/jeremy/code/nw-gyp/src/build/config.gypi -I/usr/local/lib/node_modules/nw-gyp/addon.gypi -I/home/jeremy/.nw-gyp/0.11.0-rc1/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/jeremy/.nw-gyp/0.11.0-rc1" "-Dmodule_root_dir=/home/jeremy/code/nw-gyp/src" binding.gyp
+cmd_regen_makefile = cd $(srcdir); /usr/local/lib/node_modules/nw-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/home/jeremy/code/aurus/src/build/config.gypi -I/usr/local/lib/node_modules/nw-gyp/addon.gypi -I/home/jeremy/.nw-gyp/0.11.0-rc1/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/jeremy/.nw-gyp/0.11.0-rc1" "-Dmodule_root_dir=/home/jeremy/code/aurus/src" binding.gyp
 Makefile: $(srcdir)/../../../../../usr/local/lib/node_modules/nw-gyp/addon.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp $(srcdir)/../../../.nw-gyp/0.11.0-rc1/common.gypi
 	$(call do_cmd,regen_makefile)
 

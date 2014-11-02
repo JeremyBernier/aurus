@@ -39,7 +39,7 @@ int process (jack_nframes_t nframes, void *arg) {
 		offset = pos.frame % wave_length;
 	}
 	if(playing) {
-		process_audio (nframes);
+		process_audio(nframes);
 	}
 	else {
 		process_silence(nframes);
@@ -47,54 +47,57 @@ int process (jack_nframes_t nframes, void *arg) {
 	return 0;
 }
 
-void Engine::setPlayMode(bool mode) {
-	playing = mode;
-}
-
 Engine::Engine() {
-	freq = 880;
 	offset = 0;
 	transport_aware = 0;
-	
 	bpm = 140;
-
-	jack_default_audio_sample_t scale;
-	int i, attack_length, decay_length;
-	double *amp;
-	double max_amp = 0.5;
-	int option_index;
-	int opt;
-	int got_bpm = 0;
-	int attack_percent = 1, decay_percent = 10, dur_arg = 100;
-	int verbose = 0;
 	jack_status_t status;
-
-	const char *options = "f:A:D:a:d:b:n:thv";
-	struct option long_options[] = {
-		{"frequency", 1, 0, 'f'},
-		{"amplitude", 1, 0, 'A'},
-		{"duration", 1, 0, 'D'},
-		{"attack", 1, 0, 'a'},
-		{"decay", 1, 0, 'd'},
-		{"bpm", 1, 0, 'b'},
-		{"name", 1, 0, 'n'},
-		{"transport", 0, 0, 't'},
-		{"help", 0, 0, 'h'},
-		{"verbose", 0, 0, 'v'},
-		{0, 0, 0, 0}
-	};
 
 	/* Initial Jack setup, get sample rate */
 	if ((client = jack_client_open ("Aurus", JackNoStartServer, &status)) == 0) {
 		fprintf (stderr, "jack server not running?\n");
     		// return 1;
 	}
-	jack_set_process_callback (client, process, 0);
-	output_port = jack_port_register (client, "bpm", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+	jack_set_process_callback (client, process, this);
+	const char *portName = "metronome";
+	output_port = jack_port_register (client, portName, JACK_DEFAULT_AUDIO_TYPE, 
+		JackPortIsOutput | JackPortIsTerminal, 0);
 
 	sr = jack_get_sample_rate (client);
 
-		/* setup wave table parameters */
+	// const char *portNames[] = { "out_1", "out_2" };
+	const char **outPorts = jack_get_ports(
+                client,
+                NULL,
+                NULL,
+                JackPortIsPhysical | JackPortIsInput);
+	if(outPorts != NULL) {
+		cout << outPorts[0] << endl;
+		cout << outPorts[1] << endl;
+		cout << jack_connect(client, portName, outPorts[0]);
+		cout << jack_connect(client, portName, outPorts[1]);
+		cout << "Should work" << endl;
+	}
+	else {
+        cerr << "Warning, No outputs to autoconnect to" << endl;
+	}
+	buildWave();
+}
+
+void Engine::setPlayMode(bool mode) {
+	playing = mode;
+}
+
+
+void Engine::buildWave() {
+	int freq = 880;
+	jack_default_audio_sample_t scale;
+	int i, attack_length, decay_length;
+	double *amp;
+	double max_amp = 0.5;
+	int attack_percent = 1, decay_percent = 10, dur_arg = 100;
+
+	/* setup wave table parameters */
 	wave_length = 60 * sr / bpm;
 	tone_length = sr * dur_arg / 1000;
 	attack_length = tone_length * attack_percent / 100;
@@ -117,8 +120,7 @@ Engine::Engine() {
     		// return -1;
 	}
 
-
-// /* Build the wave table */
+	// /* Build the wave table */
 	wave = (jack_default_audio_sample_t *) malloc (wave_length * sizeof(jack_default_audio_sample_t));
 	amp = (double *) malloc (tone_length * sizeof(double));
 

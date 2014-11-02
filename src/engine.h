@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
@@ -9,9 +10,10 @@
 #include <jack/jack.h>
 #include <jack/transport.h>
 
+using namespace std;
+
 class Engine {
 	private:
-		int freq;
 		int bpm;
 		unsigned long sr;
 		jack_transport_state_t transport_state;
@@ -23,4 +25,5 @@ class Engine {
 		// int process (jack_nframes_t nframes, void *arg);
 		int sample_rate_change ();
 		void setPlayMode(bool);
+		void buildWave();
 };
