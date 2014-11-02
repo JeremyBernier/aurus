@@ -1,20 +1,11 @@
 #include "engine.h"
 
-const double PI = 3.14;
-jack_port_t *output_port;
-jack_nframes_t tone_length, wave_length;
-jack_default_audio_sample_t *wave;
-long offset;
-int transport_aware;
-jack_client_t *client;
-bool playing = true;
-
-void process_silence (jack_nframes_t nframes) {
+void Engine::process_silence (jack_nframes_t nframes) {
 	jack_default_audio_sample_t *buffer = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
 	memset (buffer, 0, sizeof (jack_default_audio_sample_t) * nframes);
 }
 
-void process_audio (jack_nframes_t nframes) {
+void Engine::process_audio (jack_nframes_t nframes) {
 	jack_default_audio_sample_t *buffer = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
 	jack_nframes_t frames_left = nframes;
 	
@@ -28,29 +19,37 @@ void process_audio (jack_nframes_t nframes) {
 		offset += frames_left;
 	}
 }
-int process (jack_nframes_t nframes, void *arg) {
-	if (transport_aware) {
-		jack_position_t pos;
+int Engine::staticProcessCallback (jack_nframes_t _nframes, void *_udata) {
+	// if (transport_aware) {
+	// 	jack_position_t pos;
 
-		if (jack_transport_query (client, &pos) != JackTransportRolling) {
-			process_silence (nframes);
-			return 0;
-		}
-		offset = pos.frame % wave_length;
-	}
+	// 	if (jack_transport_query (client, &pos) != JackTransportRolling) {
+	// 		process_silence (nframes);
+	// 		return 0;
+	// 	}
+	// 	offset = pos.frame % wave_length;
+	// }
+	return static_cast<Engine *>( _udata )->
+					processCallback( _nframes, _udata );
+}
+
+int Engine::processCallback(jack_nframes_t _nframes, void * _udata) {
+
 	if(playing) {
-		process_audio(nframes);
+		process_audio(_nframes);
 	}
 	else {
-		process_silence(nframes);
+		process_silence(_nframes);
 	}
+	// return 0;
 	return 0;
 }
 
 Engine::Engine() {
 	offset = 0;
-	transport_aware = 0;
+	// transport_aware = 0;
 	bpm = 140;
+	playing = true;
 	jack_status_t status;
 
 	/* Initial Jack setup, get sample rate */
@@ -58,7 +57,7 @@ Engine::Engine() {
 		fprintf (stderr, "jack server not running?\n");
     		// return 1;
 	}
-	jack_set_process_callback (client, process, this);
+	jack_set_process_callback (client, staticProcessCallback, this);
 	const char *portName = "metronome";
 	output_port = jack_port_register (client, portName, JACK_DEFAULT_AUDIO_TYPE, 
 		JackPortIsOutput | JackPortIsTerminal, 0);

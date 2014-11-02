@@ -12,17 +12,27 @@
 
 using namespace std;
 
+const double PI = 3.14;
+
 class Engine {
 	private:
 		int bpm;
+		bool playing;
 		unsigned long sr;
 		jack_transport_state_t transport_state;
+		void process_silence (jack_nframes_t nframes);
+		void process_audio (jack_nframes_t nframes);
+		static int staticProcessCallback (jack_nframes_t nframes, void *arg);
+		jack_port_t *output_port;
+		jack_nframes_t tone_length, wave_length;
+		jack_default_audio_sample_t *wave;
+		long offset;
+		// int transport_aware;
+		jack_client_t *client;
 	public:
 		Engine();
 		void usage();
-		void process_silence (jack_nframes_t nframes);
-		// void process_audio (jack_nframes_t nframes);
-		// int process (jack_nframes_t nframes, void *arg);
+		int processCallback (jack_nframes_t nframes, void *arg);
 		int sample_rate_change ();
 		void setPlayMode(bool);
 		void buildWave();
