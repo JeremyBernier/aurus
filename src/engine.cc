@@ -5,6 +5,11 @@ Engine::Engine() {
 	// transport_aware = 0;
 	bpm = 140;
 	playing = true;
+	initJack();
+	buildWave();
+}
+
+void Engine::initJack() {
 	jack_status_t status;
 
 	/* Initial Jack setup, get sample rate */
@@ -13,29 +18,31 @@ Engine::Engine() {
     		// return 1;
 	}
 	jack_set_process_callback (client, staticProcessCallback, this);
+
 	const char *portName = "metronome";
 	output_port = jack_port_register (client, portName, JACK_DEFAULT_AUDIO_TYPE, 
-		JackPortIsOutput | JackPortIsTerminal, 0);
+		JackPortIsOutput, 0);
+	
+	if (jack_activate (client)) {
+		fprintf (stderr, "cannot activate client");
+	}
 
 	sr = jack_get_sample_rate (client);
 
-	// const char *portNames[] = { "out_1", "out_2" };
-	const char **outPorts = jack_get_ports(
-                client,
-                NULL,
-                NULL,
-                JackPortIsPhysical | JackPortIsInput);
-	if(outPorts != NULL) {
-		cout << outPorts[0] << endl;
-		cout << outPorts[1] << endl;
-		cout << jack_connect(client, portName, outPorts[0]);
-		cout << jack_connect(client, portName, outPorts[1]);
-		cout << "Should work" << endl;
+	// const char **outPorts = jack_get_ports(client,"Aurus",NULL,JackPortIsOutput);
+	const char **inPorts = jack_get_ports(client,NULL,NULL,JackPortIsInput);
+
+	if(inPorts != NULL) {
+		if(jack_connect(client, jack_port_name(output_port), inPorts[0]))
+			cout << "Failed to connect " << jack_port_name(output_port) << 
+													" to " << inPorts[0];
+		if(jack_connect(client, jack_port_name(output_port), inPorts[1]))
+			cout << "Failed to connect " << jack_port_name(output_port) << 
+													" to " << inPorts[1];
 	}
 	else {
         cerr << "Warning, No outputs to autoconnect to" << endl;
 	}
-	buildWave();
 }
 
 void Engine::process_silence (jack_nframes_t nframes) {
@@ -137,11 +144,6 @@ void Engine::buildWave() {
 	}
 	for (i = tone_length; i < (int)wave_length; i++) {
 		wave[i] = 0;
-	}
-
-	if (jack_activate (client)) {
-		fprintf (stderr, "cannot activate client");
-    		// return 1;
 	}
 }
 

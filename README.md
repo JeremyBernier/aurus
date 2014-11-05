@@ -12,6 +12,7 @@ Other:
 
 Potential features:
 * Ability to compose entire track within one piano roll
+* 3D
 
 For the GUI, I'm making the initial prototype with Node-Webkit (aka HTML5/CSS3/Javascript). The reason being that (1) it's really easy to customize and re-style (2) it's quick to develop in (3) I already know how to code web apps and have no experience with QT, GTK+, Java GUIs outside of Swing, etc.
 
