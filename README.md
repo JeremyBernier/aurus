@@ -1,6 +1,6 @@
 Making an open source DAW. 
 
-Note: It's not even close to functional yet. I suck at C++ and have no experience in audio programming. I'm just uploading it in its premature state so that other people can see and potentially contribute.
+Note: It's not even close to finished yet. I'm just uploading it in its premature state so that other people can see and potentially contribute.
 
 Main Goals:
 * Modular. Audio engine decoupled from GUI.
