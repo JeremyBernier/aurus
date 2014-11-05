@@ -15,6 +15,7 @@ using namespace std;
 const double PI = 3.14;
 
 class Engine {
+
 	private:
 		int bpm;
 		bool playing;
@@ -26,15 +27,19 @@ class Engine {
 		long offset;
 		// int transport_aware;
 		jack_client_t *client;
+		jack_default_audio_sample_t scale;
 
 		void process_silence (jack_nframes_t nframes);
 		void process_audio (jack_nframes_t nframes);
 		static int staticProcessCallback (jack_nframes_t nframes, void *arg);
+		static void jack_shutdown (void *arg);
 		void initJack();
 		void usage();
 		int processCallback (jack_nframes_t nframes, void *arg);
 		int sample_rate_change();
 		void buildWave();
+		void addNote(int startTime, int dur, int freq);
+
 	public:
 		Engine();
 		void setPlayMode(bool);
